@@ -1,0 +1,10 @@
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+scheduler.db
+*.db
+venv/
+.ipynb_checkpoints/
