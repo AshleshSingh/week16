@@ -128,6 +128,16 @@ function logout(){ localStorage.clear(); token=null; user=null; loginView(); }
 
 async function autoLogin() {
   try {
+
+    app.innerHTML = `
+      <section class="shell">
+        <div class="panel">
+          <h2>Loading AI Scheduler OS...</h2>
+          <p class="muted">Initializing intelligent scheduling environment.</p>
+        </div>
+      </section>
+    `;
+
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {
@@ -139,7 +149,13 @@ async function autoLogin() {
       })
     });
 
+    if (!response.ok) {
+      throw new Error(`Login failed: ${response.status}`);
+    }
+
     const data = await response.json();
+
+    console.log("Login response:", data);
 
     token = data.token;
     user = data.user;
@@ -147,11 +163,21 @@ async function autoLogin() {
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
 
-    dashboard();
+    await dashboard();
 
   } catch (err) {
-    console.error(err);
-    loginView();
+
+    console.error("AUTO LOGIN ERROR:", err);
+
+    app.innerHTML = `
+      <section class="shell">
+        <div class="panel">
+          <h2>Frontend Error</h2>
+          <p class="muted">${err.message}</p>
+          <button class="btn" onclick="loginView()">Open Manual Login</button>
+        </div>
+      </section>
+    `;
   }
 }
 
