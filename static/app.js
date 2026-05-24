@@ -126,4 +126,33 @@ async function requestBlock(){
 
 function logout(){ localStorage.clear(); token=null; user=null; loginView(); }
 
-token ? dashboard() : loginView();
+async function autoLogin() {
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: "ashlesh@example.com",
+        password: "demo123"
+      })
+    });
+
+    const data = await response.json();
+
+    token = data.token;
+    user = data.user;
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    dashboard();
+
+  } catch (err) {
+    console.error(err);
+    loginView();
+  }
+}
+
+autoLogin();
