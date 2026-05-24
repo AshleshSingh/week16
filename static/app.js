@@ -2,13 +2,36 @@ const app = document.getElementById("app");
 let token = localStorage.getItem("token");
 let user = JSON.parse(localStorage.getItem("user") || "null");
 
-const api = async (path, options={}) => {
-  const joiner = path.includes("?") ? "&" : "?";
-  const url = token && !path.includes("token=") && !path.includes("/login") && !path.includes("/availability") && !path.includes("/booking-request")
-    ? `${path}${joiner}token=${encodeURIComponent(token)}`
-    : path;
-  const res = await fetch(url, {headers: {"Content-Type":"application/json"}, ...options});
-  if(!res.ok) throw new Error(await res.text());
+const api = async (path, options = {}) => {
+
+  let url = path;
+
+  if (
+    token &&
+    !path.includes("/login") &&
+    !path.includes("/availability") &&
+    !path.includes("/booking-request")
+  ) {
+
+    const separator = path.includes("?") ? "&" : "?";
+
+    url = `${path}${separator}token=${encodeURIComponent(token)}`;
+  }
+
+  console.log("API CALL:", url);
+
+  const res = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json"
+    },
+    ...options
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text);
+  }
+
   return res.json();
 };
 
@@ -159,6 +182,7 @@ async function autoLogin() {
 
     token = data.token;
     user = data.user;
+    console.log("TOKEN SET:", token);
 
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
